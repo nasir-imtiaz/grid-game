@@ -1,26 +1,17 @@
 let gridSize = 50;
 const INIT_FIBONACCI_SIZE = 10;
 const FIBONACCI_RANGE = 5;
-const fibonacciSequence = [];
-  
-document.addEventListener("DOMContentLoaded", function() {
-    initFibonacciSequence();
-    addChangeListenerToGridSize();
-    initGrid();
-  });
-
 /**
  * initialize `fibonacciSequence` array with a sequence of first 10 fibonacci numbers.
  * this will later be used to check if any 5 consecutive cells in a row or a column are fibonacci numbers. 
  */
-function initFibonacciSequence() {
-  fibonacciSequence.push(1);
-  fibonacciSequence.push(2);
-  // iteration to add fibonnaci sequence numbers
-  for (let seqIdx = 1; seqIdx <= INIT_FIBONACCI_SIZE; seqIdx++) {
-    fibonacciSequence.push(fibonacciSequence[fibonacciSequence.length - 1] + fibonacciSequence[fibonacciSequence.length - 2]);
-  }
-}
+const fibonacciSequence = [1, 2, 3, 5, 8, 13, 21, 34, 55, 89];
+const CELL_HIGHLIGHT_PERIOD_MILLIS = 750;
+  
+document.addEventListener("DOMContentLoaded", function() {
+    addChangeListenerToGridSize();
+    initGrid();
+  });
 
 /**
  * initialize grid with rows and columns based on `gridSize`
@@ -75,15 +66,20 @@ function addColumn(rowDiv, rowIdx, colIdx) {
  */ 
 function onCellClick(event) {
     const targetElement = event.target || event.srcElement;
+    // increment all cells of a row where the user clicked and highlight them with yellow color 
     incrementRow(targetElement.dataset.row);
+    // increment all cells of a column where the user clicked and highlight them with yellow color 
     incrementColumn(targetElement.dataset.row, targetElement.dataset.col);
+    // timeout to clear the highlighted yellow cells 
     setTimeout(function() {
       document.querySelectorAll('.highlight-yellow').forEach((element) => element.classList.remove('highlight-yellow'));
-    }, 750);
+    }, CELL_HIGHLIGHT_PERIOD_MILLIS);
+    // check entire grid (row-wise and column-wise) for any 5 consecutive fibonnaci sequence numbers and clear them and highlight them with green color
     checkFibonacciSequence();
+    // timeout to clear the highlighted green cells     
     setTimeout(function() {
       document.querySelectorAll('.highlight-green').forEach((element) => element.classList.remove('highlight-green'));
-    }, 750);  
+    }, CELL_HIGHLIGHT_PERIOD_MILLIS);  
 }
 
 /**
@@ -128,7 +124,7 @@ function checkFibonacciSequence() {
     const row = parseInt(cell.dataset.row);
     const col = parseInt(cell.dataset.col);
     const cellVal = cell.innerHTML;
-    // call to get a consecutive sequence of 5 fibonacci sequence numbers starting with the given call value i.e. `cellVal`
+    // call to get a consecutive sequence of 5 fibonacci sequence numbers starting with the given cell value i.e. `cellVal`
     const consecutiveFibonacciSequence = getConsecutiveFibonnaciSequence( parseInt(cellVal) );
     
     // skip the iteration if the cell value i.e. `cellVal` does not exist in fibonnaci series
@@ -159,7 +155,8 @@ function checkFibonacciSequence() {
 
 /**
  * since the initial `fibonacciSequence` array contains only a sequence of first 10 fibonacci numbers,
- * this method checks if the given value i
+ * this method checks if there are 5 consectuive fibonnaci numbers present in `fibonacciSequence` array, starting from the given cell value.
+ * if not, then add 5 more elements to the `fibonacciSequence` array.
  */ 
 function getConsecutiveFibonnaciSequence(val) {
   const consecutiveFibonacciSequence = [];
@@ -210,7 +207,7 @@ function checkFibonacciSequenceInRow(row, col, consecutiveFibonacciSequence) {
   // iteration to find a matching fibonacci numbers sequence in 5 consecutive cells (row-wise)
   for (let colIdx = 0; colIdx < FIBONACCI_RANGE; colIdx++) {
     let cell = document.querySelector(`[data-row='${row}'][data-col='${col+colIdx}']`);
-    if (consecutiveFibonacciSequence[colIdx] != cell.innerHTML) {
+    if (consecutiveFibonacciSequence[colIdx] !== parseInt(cell.innerHTML)) {
       consecutiveFibonacciSequenceCells = [];
       break;
     }
@@ -221,9 +218,11 @@ function checkFibonacciSequenceInRow(row, col, consecutiveFibonacciSequence) {
   if (consecutiveFibonacciSequenceCells.length === 0 && consecutiveFibonacciSequence[0] === 1) {
     // This is a special case of [1, 1, 2, 3, 5]
     let consecutiveFibonacciSequence = [1, 1, 2, 3, 5];
+
+    // iteration to find a matching fibonacci numbers sequence in 5 consecutive cells (row-wise)
     for (let colIdx = 0; colIdx < FIBONACCI_RANGE; colIdx++) {
       let cell = document.querySelector(`[data-row='${row}'][data-col='${col+colIdx}']`);
-      if (consecutiveFibonacciSequence[colIdx] != cell.innerHTML) {
+      if (consecutiveFibonacciSequence[colIdx] !== parseInt(cell.innerHTML)) {
         consecutiveFibonacciSequenceCells = [];
         break;
       }
@@ -243,7 +242,7 @@ function checkFibonacciSequenceInCol(row, col, consecutiveFibonacciSequence) {
   // iteration to find a matching fibonacci numbers sequence in 5 consecutive cells (column-wise)
   for (let rowIdx = 0; rowIdx < FIBONACCI_RANGE; rowIdx++) {
     let cell = document.querySelector(`[data-row='${row+rowIdx}'][data-col='${col}']`);
-    if (consecutiveFibonacciSequence[rowIdx] != cell.innerHTML) {
+    if (consecutiveFibonacciSequence[rowIdx] !== parseInt(cell.innerHTML)) {
       consecutiveFibonacciSequenceCells = [];
       break;
     }
@@ -254,9 +253,11 @@ function checkFibonacciSequenceInCol(row, col, consecutiveFibonacciSequence) {
   if (consecutiveFibonacciSequenceCells.length === 0 && consecutiveFibonacciSequence[0] === 1) {
     // This is a special case of [1, 1, 2, 3, 5]
     let consecutiveFibonacciSequence = [1, 1, 2, 3, 5];
+
+    // iteration to find a matching fibonacci numbers sequence in 5 consecutive cells (row-wise)
     for (let rowIdx = 0; rowIdx < FIBONACCI_RANGE; rowIdx++) {
       let cell = document.querySelector(`[data-row='${row+rowIdx}'][data-col='${col}']`);
-      if (consecutiveFibonacciSequence[rowIdx] != cell.innerHTML) {
+      if (consecutiveFibonacciSequence[rowIdx] !== parseInt(cell.innerHTML)) {
         consecutiveFibonacciSequenceCells = [];
         break;
       }
